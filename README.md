@@ -2,6 +2,10 @@
 
 Analyzing CoinJoin Transactions
 
+# Explanation
+
+https://bitcoin.stackexchange.com/a/92652/26859
+
 # Example Output 1
 
 ```
