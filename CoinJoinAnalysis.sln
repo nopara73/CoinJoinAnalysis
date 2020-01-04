@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoinJoinAnalysis", "CoinJoinAnalysis\CoinJoinAnalysis.csproj", "{BE684E5F-BEBF-4B10-9741-E2D2EE5150B5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BE684E5F-BEBF-4B10-9741-E2D2EE5150B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE684E5F-BEBF-4B10-9741-E2D2EE5150B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE684E5F-BEBF-4B10-9741-E2D2EE5150B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE684E5F-BEBF-4B10-9741-E2D2EE5150B5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C2A17F9E-F825-4134-B515-2EFDF69DAE8A}
+	EndGlobalSection
+EndGlobal
