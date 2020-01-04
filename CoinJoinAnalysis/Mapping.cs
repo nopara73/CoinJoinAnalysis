@@ -62,6 +62,10 @@ namespace CoinJoinAnalysis
                         foreach (var inputPartitionPart in inputPartition)
                         {
                             var foundValidOutputPartitionPart = remainingOutputPartition.FirstOrDefault(x => x.Sum().Almost(inputPartitionPart.Sum(), Precision));
+                            // https://www.comsys.rwth-aachen.de/fileadmin/papers/2017/2017-maurer-trustcom-coinjoin.pdf
+                            // input partitions that include a set
+                            // with a sum that is not a sub sum of the outputs cannot
+                            // be part of a mapping
                             if (foundValidOutputPartitionPart is null)
                             {
                                 validPartition = false;
