@@ -93,7 +93,6 @@ namespace CoinJoinAnalysis
                             var mapping = new Mapping(subSetsBuilder, Precision);
                             mappings.Add(mapping);
                             yield return mapping;
-                            break;
                         }
                     }
                 }
