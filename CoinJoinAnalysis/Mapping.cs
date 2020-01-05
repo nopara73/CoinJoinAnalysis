@@ -13,6 +13,17 @@ namespace CoinJoinAnalysis
         public Analysis Analysis { get; private set; }
 
         /// <summary>
+        /// Coinjoins the submapping into one single transaction.
+        /// </summary>
+        public Mapping Join()
+        {
+            var subSetInputs = SubSets.SelectMany(x => x.inputs);
+            var suSetOutputs = SubSets.SelectMany(x => x.outputs);
+
+            return new Mapping(subSetInputs, suSetOutputs, Precision);
+        }
+
+        /// <summary>
         /// Create a non-derived mapping.
         /// </summary>
         public Mapping(IEnumerable<decimal> inputs, IEnumerable<decimal> outputs, decimal precision)
@@ -43,7 +54,7 @@ namespace CoinJoinAnalysis
         /// <summary>
         /// Loosly optimized. Has no recursion.
         /// </summary>
-        public IEnumerable<object> AnalyzeWithNopara73Algorithm()
+        public IEnumerable<Mapping> AnalyzeWithNopara73Algorithm()
         {
             var mappings = new List<Mapping>();
 

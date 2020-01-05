@@ -1,6 +1,7 @@
 ﻿using NBitcoin;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -35,31 +36,55 @@ namespace CoinJoinAnalysis
             }
 
             var nonDerivedMapping = new Mapping(inputs, outputs, precision);
+            var mappings = nonDerivedMapping.AnalyzeWithNopara73Algorithm().ToArray();
+            var analysis = nonDerivedMapping.Analysis;
+            DisplayAnalysis(mappings, analysis);
+
+            // If there is only a single derived mapping, then Knapsack it.
+            if (mappings.Length == 2)
+            {
+                var derivedMapping = mappings.Last();
+
+                // Knapsack mixing for precision != 0 is not implemented.
+                if (derivedMapping.Precision == 0m)
+                {
+                    var knapsack = new Knapsack(derivedMapping);
+                    var knapsackMappings = knapsack.Mapping.AnalyzeWithNopara73Algorithm().ToArray();
+                    var knapsackAnalysis = knapsack.Mapping.Analysis;
+
+                    Console.WriteLine();
+                    Console.WriteLine("Mixing the derived sub transactions with Knapsack algorithm...");
+                    DisplayAnalysis(knapsackMappings, knapsackAnalysis);
+                }
+            }
 
             Console.WriteLine();
+            Console.WriteLine("Press a key to exit...");
+            Console.ReadKey();
+        }
+
+        private static void DisplayAnalysis(IEnumerable<Mapping> mappings, Analysis analysis)
+        {
+            Console.WriteLine();
             Console.WriteLine("Sub mappings:");
-            foreach (var mapping in nonDerivedMapping.AnalyzeWithNopara73Algorithm())
+            foreach (var mapping in mappings)
             {
                 Console.WriteLine(mapping);
             }
 
             Console.WriteLine();
             Console.WriteLine("Input match probabilities:");
-            foreach (var anal in nonDerivedMapping.Analysis.InputAnalyses)
+            foreach (var anal in analysis.InputAnalyses)
             {
                 Console.WriteLine(anal);
             }
 
             Console.WriteLine();
             Console.WriteLine("Output match probabilities:");
-            foreach (var anal in nonDerivedMapping.Analysis.OutputAnalyses)
+            foreach (var anal in analysis.OutputAnalyses)
             {
                 Console.WriteLine(anal);
             }
-
-            Console.WriteLine();
-            Console.WriteLine("Press a key to exit...");
-            Console.ReadKey();
         }
 
         private static async Task<(IEnumerable<decimal> inputs, IEnumerable<decimal> outputs, decimal precision)> GetParametersFromSmartBitAsync(uint256 txid)

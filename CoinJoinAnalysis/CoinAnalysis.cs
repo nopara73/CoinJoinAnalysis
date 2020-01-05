@@ -20,7 +20,7 @@ namespace CoinJoinAnalysis
 
         public override string ToString()
         {
-            return $"{Value} - inputs: {string.Join(' ', Inputs.Select(x => x.value + "(" + x.distance + ")"))} | outputs: {string.Join(' ', Outputs.Select(x => x.value + "(" + x.distance + ")"))}";
+            return $"{Value} - inputs: {string.Join(' ', Inputs.Select(x => x.value + "(" + decimal.Round(x.distance, 2, MidpointRounding.AwayFromZero) + ")"))} | outputs: {string.Join(' ', Outputs.Select(x => x.value + "(" + decimal.Round(x.distance, 2, MidpointRounding.AwayFromZero) + ")"))}";
         }
     }
 }
