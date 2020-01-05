@@ -3,11 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoinJoinAnalysis", "CoinJoinAnalysis\CoinJoinAnalysis.csproj", "{BE684E5F-BEBF-4B10-9741-E2D2EE5150B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoinJoinAnalysis", "CoinJoinAnalysis\CoinJoinAnalysis.csproj", "{BE684E5F-BEBF-4B10-9741-E2D2EE5150B5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{16C870E7-B3C7-4108-B0AB-CDB3C65B49AE}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoinJoinAnalysis.Tests", "CoinJoinAnalysis.Tests\CoinJoinAnalysis.Tests.csproj", "{2DF66208-CFBE-4DF7-BC32-CA23891682B9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BE684E5F-BEBF-4B10-9741-E2D2EE5150B5} = {BE684E5F-BEBF-4B10-9741-E2D2EE5150B5}
 	EndProjectSection
 EndProject
 Global
@@ -20,6 +25,10 @@ Global
 		{BE684E5F-BEBF-4B10-9741-E2D2EE5150B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE684E5F-BEBF-4B10-9741-E2D2EE5150B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE684E5F-BEBF-4B10-9741-E2D2EE5150B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DF66208-CFBE-4DF7-BC32-CA23891682B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DF66208-CFBE-4DF7-BC32-CA23891682B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DF66208-CFBE-4DF7-BC32-CA23891682B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DF66208-CFBE-4DF7-BC32-CA23891682B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -38,7 +38,7 @@ namespace CoinJoinAnalysis
             {
                 if (!inputs.Sum().Almost(outputs.Sum(), precision))
                 {
-                    throw new ArgumentException("The sum of inputs must be equal to the sum of outputs.");
+                    throw new InvalidOperationException("The sum of inputs must be equal to the sum of outputs.");
                 }
             }
 
