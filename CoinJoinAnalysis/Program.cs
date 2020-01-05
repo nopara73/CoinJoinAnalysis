@@ -32,13 +32,13 @@ namespace CoinJoinAnalysis
                 inputs = workingParams.inputs;
                 outputs = workingParams.outputs;
             }
-            else if (TryParseSubTransactions(firstReply, out IEnumerable<(IEnumerable<decimal> inputs, IEnumerable<decimal> outputs)> subTransactions))
+            else if (TryParseSubTransactions(firstReply, out IEnumerable<SubSet> subTransactions))
             {
-                precision = 0m;
-                knapsackMapping = new Mapping(subTransactions, precision);
+                precision = subTransactions.First().Precision;
+                knapsackMapping = new Mapping(subTransactions);
                 var joined = knapsackMapping.Join();
-                inputs = joined.SubSets.First().inputs;
-                outputs = joined.SubSets.First().outputs;
+                inputs = joined.SubSets.First().Inputs;
+                outputs = joined.SubSets.First().Outputs;
             }
             else
             {
@@ -48,7 +48,7 @@ namespace CoinJoinAnalysis
                 outputs = workingParams.outputs;
             }
 
-            var nonDerivedMapping = new Mapping(inputs, outputs, precision);
+            var nonDerivedMapping = new Mapping(new SubSet(inputs, outputs, precision));
             var mappings = nonDerivedMapping.AnalyzeWithNopara73Algorithm().ToArray();
             var analysis = nonDerivedMapping.Analysis;
             DisplayAnalysis(mappings, analysis);
@@ -69,17 +69,17 @@ namespace CoinJoinAnalysis
             Console.ReadKey();
         }
 
-        private static bool TryParseSubTransactions(string firstReply, out IEnumerable<(IEnumerable<decimal> inputs, IEnumerable<decimal> outputs)> subTransactions)
+        private static bool TryParseSubTransactions(string firstReply, out IEnumerable<SubSet> subTransactions)
         {
             subTransactions = null;
             try
             {
-                var subTxs = new List<(IEnumerable<decimal> inputs, IEnumerable<decimal> outputs)>();
+                var subTxs = new List<SubSet>();
                 var subTransactionValueStrings = firstReply.Split('|');
                 foreach (var subTransactionValueString in subTransactionValueStrings)
                 {
                     var parts = subTransactionValueString.Split("->");
-                    subTxs.Add((ParseValues(parts[0]), ParseValues(parts[1])));
+                    subTxs.Add(new SubSet(ParseValues(parts[0]), ParseValues(parts[1]), precision: 0m));
                 }
 
                 if (subTxs.Count > 1)

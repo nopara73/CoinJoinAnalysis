@@ -7,10 +7,13 @@ namespace CoinJoinAnalysis
 {
     public class Knapsack
     {
+        public decimal Precision { get; }
         public Mapping Mapping { get; }
         public Knapsack(Mapping mapping)
         {
-            if (mapping.Precision != 0m)
+            var precision = mapping.Precision;
+            Precision = precision;
+            if (precision != 0m)
             {
                 throw new NotImplementedException("Knapsack mixing is only implemented for transactions with 0 fees.");
             }
@@ -24,36 +27,37 @@ namespace CoinJoinAnalysis
                 currentKnapsackTransaction = MixTransactions(currentKnapsackTransaction, subTransaction);
             }
 
-            return new Mapping(currentKnapsackTransaction.inputs, currentKnapsackTransaction.outputs, mapping.Precision);
+
+            return new Mapping(currentKnapsackTransaction);
         }
 
         /// <summary>
         /// Listing 2: Simple output splitting algorithm
         /// https://www.comsys.rwth-aachen.de/fileadmin/papers/2017/2017-maurer-trustcom-coinjoin.pdf
         /// </summary>
-        private (IEnumerable<decimal> inputs, IEnumerable<decimal> outputs) MixTransactions((IEnumerable<decimal> inputs, IEnumerable<decimal> outputs) tx1, (IEnumerable<decimal> inputs, IEnumerable<decimal> outputs) tx2)
+        private SubSet MixTransactions(SubSet tx1, SubSet tx2)
         {
-            var allInputs = tx1.inputs.Concat(tx2.inputs);
-            var taInputsSum = tx1.inputs.Sum();
-            var tbInputsSum = tx2.inputs.Sum();
+            var allInputs = tx1.Inputs.Concat(tx2.Inputs);
+            var taInputsSum = tx1.Inputs.Sum();
+            var tbInputsSum = tx2.Inputs.Sum();
 
-            if (taInputsSum == tbInputsSum)
+            if (taInputsSum.Almost(tbInputsSum, Precision))
             {
-                return (allInputs, tx1.outputs.Concat(tx2.outputs));
+                return new SubSet(allInputs, tx1.Outputs.Concat(tx2.Outputs), Precision);
             }
             IEnumerable<decimal> newOutputs;
             if (taInputsSum > tbInputsSum)
             {
                 var diff = taInputsSum - tbInputsSum;
-                newOutputs = RealizeSubSum(tx1.outputs, diff).Concat(tx2.outputs);
+                newOutputs = RealizeSubSum(tx1.Outputs, diff).Concat(tx2.Outputs);
             }
             else
             {
                 var diff = tbInputsSum - taInputsSum;
-                newOutputs = RealizeSubSum(tx2.outputs, diff).Concat(tx1.outputs);
+                newOutputs = RealizeSubSum(tx2.Outputs, diff).Concat(tx1.Outputs);
             }
 
-            return (allInputs, newOutputs);
+            return new SubSet(allInputs, newOutputs, Precision);
         }
 
         /// <summary>

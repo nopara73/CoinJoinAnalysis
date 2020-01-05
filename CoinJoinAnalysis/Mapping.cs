@@ -7,7 +7,7 @@ namespace CoinJoinAnalysis
 {
     public class Mapping
     {
-        public IEnumerable<(IEnumerable<decimal> inputs, IEnumerable<decimal> outputs)> SubSets { get; }
+        public IEnumerable<SubSet> SubSets { get; }
         public decimal Precision { get; }
 
         public Analysis Analysis { get; private set; }
@@ -17,38 +17,35 @@ namespace CoinJoinAnalysis
         /// </summary>
         public Mapping Join()
         {
-            var subSetInputs = SubSets.SelectMany(x => x.inputs);
-            var suSetOutputs = SubSets.SelectMany(x => x.outputs);
+            var subSetInputs = SubSets.SelectMany(x => x.Inputs);
+            var suSetOutputs = SubSets.SelectMany(x => x.Outputs);
 
-            return new Mapping(subSetInputs, suSetOutputs, Precision);
+            return new Mapping(new SubSet(subSetInputs, suSetOutputs, Precision));
         }
 
         /// <summary>
         /// Create a non-derived mapping.
         /// </summary>
-        public Mapping(IEnumerable<decimal> inputs, IEnumerable<decimal> outputs, decimal precision)
-          : this(new List<(IEnumerable<decimal>, IEnumerable<decimal>)> { (inputs, outputs) }, precision)
+        public Mapping(SubSet subSet)
+          : this(new List<SubSet> { subSet })
         {
 
         }
 
-        public Mapping(IEnumerable<(IEnumerable<decimal> inputs, IEnumerable<decimal> outputs)> subSets, decimal precision)
+        public Mapping(IEnumerable<SubSet> subSets)
         {
-            foreach (var (inputs, outputs) in subSets)
+            if (subSets.Select(x => x.Precision).Distinct().Count() != 1)
             {
-                if (!inputs.Sum().Almost(outputs.Sum(), precision))
-                {
-                    throw new InvalidOperationException("The sum of inputs must be equal to the sum of outputs.");
-                }
+                throw new InvalidOperationException("All subsets must have the same precision.");
             }
 
             SubSets = subSets;
-            Precision = precision;
+            Precision = subSets.First().Precision;
         }
 
         public override string ToString()
         {
-            return string.Join(" | ", SubSets.Select(x => $"{string.Join(',', x.inputs)} -> {string.Join(',', x.outputs)}"));
+            return string.Join(" | ", SubSets.Select(x => $"{string.Join(',', x.Inputs)} -> {string.Join(',', x.Outputs)}"));
         }
 
         /// <summary>
@@ -58,10 +55,10 @@ namespace CoinJoinAnalysis
         {
             var mappings = new List<Mapping>();
 
-            foreach (var (inputs, outputs) in SubSets)
+            foreach (var subSet in SubSets)
             {
-                var outputPartitions = Partitioning.GetAllPartitions(outputs.ToArray());
-                var inputPartitions = Partitioning.GetAllPartitions(inputs.ToArray());
+                var outputPartitions = Partitioning.GetAllPartitions(subSet.Outputs.ToArray());
+                var inputPartitions = Partitioning.GetAllPartitions(subSet.Inputs.ToArray());
 
                 foreach (var inputPartition in inputPartitions)
                 {
@@ -69,7 +66,7 @@ namespace CoinJoinAnalysis
                     {
                         var remainingOutputPartition = outputPartition;
                         var validPartition = true;
-                        var subSetsBuilder = new List<(IEnumerable<decimal> inputs, IEnumerable<decimal> outputs)>();
+                        var subSetsBuilder = new List<SubSet>();
                         foreach (var inputPartitionPart in inputPartition)
                         {
                             var foundValidOutputPartitionPart = remainingOutputPartition.FirstOrDefault(x => x.Sum().Almost(inputPartitionPart.Sum(), Precision));
@@ -84,13 +81,13 @@ namespace CoinJoinAnalysis
                             }
                             else
                             {
-                                subSetsBuilder.Add((inputPartitionPart, foundValidOutputPartitionPart));
+                                subSetsBuilder.Add(new SubSet(inputPartitionPart, foundValidOutputPartitionPart, Precision));
                             }
                         }
 
                         if (validPartition)
                         {
-                            var mapping = new Mapping(subSetsBuilder, Precision);
+                            var mapping = new Mapping(subSetsBuilder);
                             mappings.Add(mapping);
                             yield return mapping;
                         }
