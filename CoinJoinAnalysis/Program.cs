@@ -12,20 +12,33 @@ namespace CoinJoinAnalysis
     {
         static async Task Main()
         {
-            Console.WriteLine("Provide inputs or transaction ID! Example: 21,12,36,28.1 or 0f9f3b68f369b3b95779284d4d0607cb8f5051055c2e1b1813848370496e95aa");
+            Console.WriteLine("Provide inputs, transaction ID or sub-transactions!");
+            Console.WriteLine("If you provide inputs, then an analysis will be conduced. Example: 21,12,36,28.1");
+            Console.WriteLine("If you provide transaction ID, then an analysis will be conduced. Example: 0f9f3b68f369b3b95779284d4d0607cb8f5051055c2e1b1813848370496e95aa");
+            Console.WriteLine("If you provide sub-transactions, then an analysis, knapsack mixing and an analysis on the knapsack mixing will be conduced. Example: 21,12 -> 25,8 | 36,28.1 -> 50,14.1");
             var firstReply = Console.ReadLine().Trim();
+
             // To solve the subset sum problem in simplified transactions where we disregard the mining fee, the precision can be zero.
             // However real transactions have mining fees, so the precision should be the mining fee, as the maximum as one peer's balance changed.
             // Even more ambiguity is introduced with joinmarket or wasabi transactions where additional fees makes the precision larger.
             decimal precision;
             IEnumerable<decimal> inputs;
             IEnumerable<decimal> outputs;
+            Mapping knapsackMapping = null;
             if (uint256.TryParse(firstReply, out uint256 txid))
             {
                 var workingParams = await GetParametersFromSmartBitAsync(txid);
                 precision = workingParams.precision;
                 inputs = workingParams.inputs;
                 outputs = workingParams.outputs;
+            }
+            else if (TryParseSubTransactions(firstReply, out IEnumerable<(IEnumerable<decimal> inputs, IEnumerable<decimal> outputs)> subTransactions))
+            {
+                precision = 0m;
+                knapsackMapping = new Mapping(subTransactions, precision);
+                var joined = knapsackMapping.Join();
+                inputs = joined.SubSets.First().inputs;
+                outputs = joined.SubSets.First().outputs;
             }
             else
             {
@@ -40,27 +53,46 @@ namespace CoinJoinAnalysis
             var analysis = nonDerivedMapping.Analysis;
             DisplayAnalysis(mappings, analysis);
 
-            // If there is only a single derived mapping, then Knapsack it.
-            if (mappings.Length == 2)
+            if (knapsackMapping is { })
             {
-                var derivedMapping = mappings.Last();
+                var knapsack = new Knapsack(knapsackMapping);
+                var knapsackMappings = knapsack.Mapping.AnalyzeWithNopara73Algorithm().ToArray();
+                var knapsackAnalysis = knapsack.Mapping.Analysis;
 
-                // Knapsack mixing for precision != 0 is not implemented.
-                if (derivedMapping.Precision == 0m)
-                {
-                    var knapsack = new Knapsack(derivedMapping);
-                    var knapsackMappings = knapsack.Mapping.AnalyzeWithNopara73Algorithm().ToArray();
-                    var knapsackAnalysis = knapsack.Mapping.Analysis;
-
-                    Console.WriteLine();
-                    Console.WriteLine("Mixing the derived sub transactions with Knapsack algorithm...");
-                    DisplayAnalysis(knapsackMappings, knapsackAnalysis);
-                }
+                Console.WriteLine();
+                Console.WriteLine("Mixing the derived sub transactions with Knapsack algorithm...");
+                DisplayAnalysis(knapsackMappings, knapsackAnalysis);
             }
 
             Console.WriteLine();
             Console.WriteLine("Press a key to exit...");
             Console.ReadKey();
+        }
+
+        private static bool TryParseSubTransactions(string firstReply, out IEnumerable<(IEnumerable<decimal> inputs, IEnumerable<decimal> outputs)> subTransactions)
+        {
+            subTransactions = null;
+            try
+            {
+                var subTxs = new List<(IEnumerable<decimal> inputs, IEnumerable<decimal> outputs)>();
+                var subTransactionValueStrings = firstReply.Split('|');
+                foreach (var subTransactionValueString in subTransactionValueStrings)
+                {
+                    var parts = subTransactionValueString.Split("->");
+                    subTxs.Add((ParseValues(parts[0]), ParseValues(parts[1])));
+                }
+
+                if (subTxs.Count > 1)
+                {
+                    subTransactions = subTxs;
+                    return true;
+                }
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private static void DisplayAnalysis(IEnumerable<Mapping> mappings, Analysis analysis)

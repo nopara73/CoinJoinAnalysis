@@ -32,7 +32,7 @@ namespace CoinJoinAnalysis
 
         }
 
-        private Mapping(IEnumerable<(IEnumerable<decimal> inputs, IEnumerable<decimal> outputs)> subSets, decimal precision)
+        public Mapping(IEnumerable<(IEnumerable<decimal> inputs, IEnumerable<decimal> outputs)> subSets, decimal precision)
         {
             foreach (var (inputs, outputs) in subSets)
             {
