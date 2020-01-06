@@ -38,23 +38,62 @@ namespace CoinJoinAnalysis
         private SubSet MixTransactions(SubSet tx1, SubSet tx2)
         {
             var allInputs = tx1.Inputs.Concat(tx2.Inputs);
-            var taInputsSum = tx1.Inputs.Sum(x => x.Value);
-            var tbInputsSum = tx2.Inputs.Sum(x => x.Value);
+            var tx1InputsSum = tx1.Inputs.Sum(x => x.Value);
+            var tx2InputsSum = tx2.Inputs.Sum(x => x.Value);
 
-            if (taInputsSum.Almost(tbInputsSum, Precision))
+            if (tx1InputsSum.Almost(tx2InputsSum, Precision))
             {
                 return new SubSet(allInputs, tx1.Outputs.Concat(tx2.Outputs), Precision);
             }
             IEnumerable<Coin> newOutputs;
-            if (taInputsSum > tbInputsSum)
+            if (tx1InputsSum > tx2InputsSum)
             {
-                var diff = taInputsSum - tbInputsSum;
+                var diff = tx1InputsSum - tx2InputsSum;
                 newOutputs = RealizeSubSum(tx1.Outputs, diff).Concat(tx2.Outputs);
             }
             else
             {
-                var diff = tbInputsSum - taInputsSum;
+                var diff = tx2InputsSum - tx1InputsSum;
                 newOutputs = RealizeSubSum(tx2.Outputs, diff).Concat(tx1.Outputs);
+            }
+
+            return new SubSet(allInputs, newOutputs, Precision);
+        }
+
+        /// <summary>
+        /// Listing 3: Output splitting algorithm with input shuffling
+        /// Note: this is just an guess on what Listing 3 would like to describe as it's not clear. Examining the results it may well be correct.
+        /// https://www.comsys.rwth-aachen.de/fileadmin/papers/2017/2017-maurer-trustcom-coinjoin.pdf
+        /// </summary>
+        private SubSet MixTransactions2(SubSet tx1, SubSet tx2)
+        {
+            var allInputs = tx1.Inputs.Concat(tx2.Inputs);
+            var tx1InputsSum = tx1.Inputs.Sum(x => x.Value);
+            var tx2InputsSum = tx2.Inputs.Sum(x => x.Value);
+            var tx1OutputsSum = tx1.Outputs.Sum(x => x.Value);
+            var tx2OutputsSum = tx2.Outputs.Sum(x => x.Value);
+
+            if (tx1InputsSum.Almost(tx2InputsSum, Precision))
+            {
+                return new SubSet(allInputs, tx1.Outputs.Concat(tx2.Outputs), Precision);
+            }
+
+            var combinations = allInputs.CombinationsWithoutRepetition();
+            var randomSum = combinations.RandomElement().Sum(x => x.Value);
+
+            while (randomSum >= tx1OutputsSum && randomSum >= tx2OutputsSum)
+            {
+                randomSum = combinations.RandomElement().Sum(x => x.Value);
+            }
+
+            IEnumerable<Coin> newOutputs;
+            if (tx1OutputsSum > randomSum)
+            {
+                newOutputs = RealizeSubSum(tx1.Outputs, randomSum).Concat(tx2.Outputs);
+            }
+            else
+            {
+                newOutputs = RealizeSubSum(tx2.Outputs, randomSum).Concat(tx1.Outputs);
             }
 
             return new SubSet(allInputs, newOutputs, Precision);

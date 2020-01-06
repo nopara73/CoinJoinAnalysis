@@ -19,5 +19,43 @@ namespace System.Linq
                 list[n] = value;
             }
         }
+
+        public static IEnumerable<IEnumerable<T>> CombinationsWithoutRepetition<T>(this IEnumerable<T> items, int len)
+        {
+            return (len == 1) ?
+                items.Select(item => new[] { item }) :
+                items.SelectMany((item, i) => items.Skip(i + 1)
+                    .CombinationsWithoutRepetition(len - 1)
+                    .Select(result => new T[] { item }.Concat(result)));
+        }
+
+        public static IEnumerable<IEnumerable<T>> CombinationsWithoutRepetition<T>(this IEnumerable<T> items, int low, int high)
+        {
+            return Enumerable.Range(low, high).SelectMany(len => items.CombinationsWithoutRepetition(len));
+        }
+
+        public static IEnumerable<IEnumerable<T>> CombinationsWithoutRepetition<T>(this IEnumerable<T> items)
+        {
+            return items.CombinationsWithoutRepetition(1, items.Count());
+        }
+
+        public static T RandomElement<T>(this IEnumerable<T> source)
+        {
+            T current = default;
+            int count = 0;
+            foreach (T element in source)
+            {
+                count++;
+                if (new Random().Next(count) == 0)
+                {
+                    current = element;
+                }
+            }
+            if (count == 0)
+            {
+                return default;
+            }
+            return current;
+        }
     }
 }
