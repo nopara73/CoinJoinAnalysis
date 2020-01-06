@@ -37,8 +37,8 @@ namespace CoinJoinAnalysis
                 precision = subTransactions.First().Precision;
                 knapsackMapping = new Mapping(subTransactions);
                 var joined = knapsackMapping.Join();
-                inputs = joined.SubSets.First().Inputs;
-                outputs = joined.SubSets.First().Outputs;
+                inputs = joined.SubSets.First().Inputs.Select(x => x.Value);
+                outputs = joined.SubSets.First().Outputs.Select(x => x.Value);
             }
             else
             {

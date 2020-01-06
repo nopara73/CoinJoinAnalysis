@@ -22,7 +22,7 @@ namespace CoinJoinAnalysis
         public Mapping Mix(Mapping mapping)
         {
             var currentKnapsackTransaction = mapping.SubSets.First();
-            foreach(var subTransaction in mapping.SubSets.Skip(1))
+            foreach (var subTransaction in mapping.SubSets.Skip(1))
             {
                 currentKnapsackTransaction = MixTransactions(currentKnapsackTransaction, subTransaction);
             }
@@ -38,14 +38,14 @@ namespace CoinJoinAnalysis
         private SubSet MixTransactions(SubSet tx1, SubSet tx2)
         {
             var allInputs = tx1.Inputs.Concat(tx2.Inputs);
-            var taInputsSum = tx1.Inputs.Sum();
-            var tbInputsSum = tx2.Inputs.Sum();
+            var taInputsSum = tx1.Inputs.Sum(x => x.Value);
+            var tbInputsSum = tx2.Inputs.Sum(x => x.Value);
 
             if (taInputsSum.Almost(tbInputsSum, Precision))
             {
                 return new SubSet(allInputs, tx1.Outputs.Concat(tx2.Outputs), Precision);
             }
-            IEnumerable<decimal> newOutputs;
+            IEnumerable<Coin> newOutputs;
             if (taInputsSum > tbInputsSum)
             {
                 var diff = taInputsSum - tbInputsSum;
@@ -64,7 +64,7 @@ namespace CoinJoinAnalysis
         /// Listing 2: Simple output splitting algorithm
         /// https://www.comsys.rwth-aachen.de/fileadmin/papers/2017/2017-maurer-trustcom-coinjoin.pdf
         /// </summary>
-        private IEnumerable<decimal> RealizeSubSum(IEnumerable<decimal> outputs, decimal diff)
+        private IEnumerable<Coin> RealizeSubSum(IEnumerable<Coin> outputs, decimal diff)
         {
             var subSum = diff;
             foreach (var coin in outputs)
@@ -73,15 +73,15 @@ namespace CoinJoinAnalysis
                 {
                     yield return coin;
                 }
-                else if (coin <= subSum)
+                else if (coin.Value <= subSum)
                 {
                     yield return coin;
-                    subSum -= coin;
+                    subSum -= coin.Value;
                 }
                 else
                 {
-                    yield return subSum;
-                    yield return coin - subSum;
+                    yield return Coin.Random(subSum);
+                    yield return Coin.Random(coin.Value - subSum);
                     subSum = 0;
                 }
             }

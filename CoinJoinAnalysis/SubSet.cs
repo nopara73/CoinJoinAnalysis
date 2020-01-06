@@ -7,12 +7,17 @@ namespace CoinJoinAnalysis
 {
     public class SubSet
     {
-        public IEnumerable<decimal> Inputs { get; }
-        public IEnumerable<decimal> Outputs { get; }
+        public IEnumerable<Coin> Inputs { get; }
+        public IEnumerable<Coin> Outputs { get; }
         public decimal Precision { get; }
         public SubSet(IEnumerable<decimal> inputs, IEnumerable<decimal> outputs, decimal precision)
+            : this(inputs.Select(x => Coin.Random(x)), outputs.Select(x => Coin.Random(x)), precision)
         {
-            if (!inputs.Sum().Almost(outputs.Sum(), precision))
+        }
+
+        public SubSet(IEnumerable<Coin> inputs, IEnumerable<Coin> outputs, decimal precision)
+        {
+            if (!inputs.Sum(x => x.Value).Almost(outputs.Sum(x => x.Value), precision))
             {
                 throw new InvalidOperationException("The sum of inputs must be equal to the sum of outputs.");
             }

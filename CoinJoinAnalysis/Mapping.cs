@@ -69,7 +69,7 @@ namespace CoinJoinAnalysis
                         var subSetsBuilder = new List<SubSet>();
                         foreach (var inputPartitionPart in inputPartition)
                         {
-                            var foundValidOutputPartitionPart = remainingOutputPartition.FirstOrDefault(x => x.Sum().Almost(inputPartitionPart.Sum(), Precision));
+                            var foundValidOutputPartitionPart = remainingOutputPartition.FirstOrDefault(x => x.Sum(x => x.Value).Almost(inputPartitionPart.Sum(x => x.Value), Precision));
                             // https://www.comsys.rwth-aachen.de/fileadmin/papers/2017/2017-maurer-trustcom-coinjoin.pdf
                             // input partitions that include a set
                             // with a sum that is not a sub sum of the outputs cannot

@@ -21,14 +21,14 @@ namespace CoinJoinAnalysis
             var inputAnalyses = new List<CoinAnalysis>();
             foreach (var input in NonDerivedMapping.SubSets.Single().Inputs)
             {
-                var inputDistances = new List<(decimal value, decimal distance)>();
+                var inputDistances = new List<(Coin coin, decimal distance)>();
                 foreach (var input2 in NonDerivedMapping.SubSets.Single().Inputs.Except(new[] { input }))
                 {
                     var commonMappingCount = Mappings.Count(x => x.SubSets.Any(y => y.Inputs.Contains(input) && y.Inputs.Contains(input2)));
                     inputDistances.Add((input2, (decimal)commonMappingCount / mappingCount));
                 }
 
-                var outputDistances = new List<(decimal value, decimal distance)>();
+                var outputDistances = new List<(Coin coin, decimal distance)>();
                 foreach (var output in NonDerivedMapping.SubSets.Single().Outputs)
                 {
                     var commonMappingCount = Mappings.Count(x => x.SubSets.Any(y => y.Inputs.Contains(input) && y.Outputs.Contains(output)));
@@ -42,14 +42,14 @@ namespace CoinJoinAnalysis
             var outputAnalyses = new List<CoinAnalysis>();
             foreach (var output in NonDerivedMapping.SubSets.Single().Outputs)
             {
-                var outputDistances = new List<(decimal value, decimal distance)>();
+                var outputDistances = new List<(Coin coin, decimal distance)>();
                 foreach (var output2 in NonDerivedMapping.SubSets.Single().Outputs.Except(new[] { output }))
                 {
                     var commonMappingCount = Mappings.Count(x => x.SubSets.Any(y => y.Outputs.Contains(output) && y.Outputs.Contains(output2)));
                     outputDistances.Add((output2, (decimal)commonMappingCount / mappingCount));
                 }
 
-                var inputDistances = new List<(decimal value, decimal distance)>();
+                var inputDistances = new List<(Coin coin, decimal distance)>();
                 foreach (var input in NonDerivedMapping.SubSets.Single().Inputs)
                 {
                     var commonMappingCount = Mappings.Count(x => x.SubSets.Any(y => y.Outputs.Contains(output) && y.Inputs.Contains(input)));
