@@ -62,7 +62,7 @@ namespace CoinJoinAnalysis
 
         /// <summary>
         /// Listing 3: Output splitting algorithm with input shuffling
-        /// Note: this is just an guess on what Listing 3 would like to describe as it's not clear. Examining the results it may well be correct.
+        /// Note: this is just a guess on what Listing 3 would like to describe as it's not clear. Examining the results it may well be correct.
         /// https://www.comsys.rwth-aachen.de/fileadmin/papers/2017/2017-maurer-trustcom-coinjoin.pdf
         /// </summary>
         private SubSet MixTransactions2(SubSet tx1, SubSet tx2)
