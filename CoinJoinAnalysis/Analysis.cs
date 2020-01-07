@@ -12,6 +12,41 @@ namespace CoinJoinAnalysis
         public IEnumerable<CoinAnalysis> InputAnalyses { get; }
         public IEnumerable<CoinAnalysis> OutputAnalyses { get; }
 
+        public decimal CalculateCoinJoinAmbiguity()
+        {
+            var cja = 0m;
+            var analyzed = new HashSet<CoinPair>();
+            foreach (var anal in InputAnalyses)
+            {
+                foreach (var coin in anal.Inputs.Where(x => !analyzed.Contains(new CoinPair(anal.Coin, x.coin))))
+                {
+                    cja += (anal.Coin.Value * coin.coin.Value) / coin.distance;
+                    analyzed.Add(new CoinPair(anal.Coin, coin.coin));
+                }
+
+                // No duplication here, so no need the contains.
+                foreach (var coin in anal.Outputs)
+                {
+                    cja += (anal.Coin.Value * coin.coin.Value) / coin.distance;
+                    analyzed.Add(new CoinPair(anal.Coin, coin.coin));
+                }
+            }
+
+            analyzed.Clear();
+            foreach (var anal in OutputAnalyses)
+            {
+                foreach (var coin in anal.Outputs.Where(x => !analyzed.Contains(new CoinPair(anal.Coin, x.coin))))
+                {
+                    cja += (anal.Coin.Value * coin.coin.Value) / coin.distance;
+                    analyzed.Add(new CoinPair(anal.Coin, coin.coin));
+                }
+
+                // Input-output paris were already analyzed when we went through the inputs, so we don't need to do it again.
+            }
+
+            return cja;
+        }
+
         public Analysis(IEnumerable<Mapping> mappings)
         {
             Mappings = mappings;

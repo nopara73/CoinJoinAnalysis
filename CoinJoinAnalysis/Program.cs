@@ -117,6 +117,9 @@ namespace CoinJoinAnalysis
             {
                 Console.WriteLine(anal);
             }
+
+            Console.WriteLine();
+            Console.WriteLine($"CoinJoin Ambiguity Score: {(long)analysis.CalculateCoinJoinAmbiguity()}");
         }
 
         private static async Task<(IEnumerable<decimal> inputs, IEnumerable<decimal> outputs, decimal precision)> GetParametersFromSmartBitAsync(uint256 txid)
