@@ -20,14 +20,14 @@ namespace CoinJoinAnalysis
             {
                 foreach (var coin in anal.Inputs.Where(x => !analyzed.Contains(new CoinPair(anal.Coin, x.coin))))
                 {
-                    cja += (anal.Coin.Value * coin.coin.Value) / coin.distance;
+                    cja += (anal.Coin.Value + coin.coin.Value) / coin.distance;
                     analyzed.Add(new CoinPair(anal.Coin, coin.coin));
                 }
 
                 // No duplication here, so no need the contains.
                 foreach (var coin in anal.Outputs)
                 {
-                    cja += (anal.Coin.Value * coin.coin.Value) / coin.distance;
+                    cja += (anal.Coin.Value + coin.coin.Value) / coin.distance;
                     analyzed.Add(new CoinPair(anal.Coin, coin.coin));
                 }
             }
@@ -37,7 +37,7 @@ namespace CoinJoinAnalysis
             {
                 foreach (var coin in anal.Outputs.Where(x => !analyzed.Contains(new CoinPair(anal.Coin, x.coin))))
                 {
-                    cja += (anal.Coin.Value * coin.coin.Value) / coin.distance;
+                    cja += (anal.Coin.Value + coin.coin.Value) / coin.distance;
                     analyzed.Add(new CoinPair(anal.Coin, coin.coin));
                 }
 
